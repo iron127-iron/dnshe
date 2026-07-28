@@ -8,13 +8,6 @@ datasource db {
   url      = env("TURSO_DATABASE_URL")
 }
 
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  PREMIUM_USER
-  FREE_USER
-}
-
 model User {
   id               String   @id @default(uuid())
   email            String   @unique
@@ -24,7 +17,7 @@ model User {
   password         String
   displayName      String?
   avatar           String?
-  role             Role     @default(FREE_USER)
+  role             String   @default("FREE_USER")
   isActive         Boolean  @default(true)
   isBlocked        Boolean  @default(false)
   twoFactorSecret  String?
@@ -80,7 +73,7 @@ model RefreshToken {
 
 model Permission {
   id         String @id @default(uuid())
-  role       Role
+  role       String
   resource   String
   action     String
   conditions String?
