@@ -6,7 +6,7 @@ export class DnsheApiService {
   private baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.baseUrl = this.configService.get('DNSHE_API_BASE_URL') || 'https://api.dnshe.com/v1';
+    this.baseUrl = this.configService.get('DNSHE_API_BASE_URL') || 'https://api005.dnshe.com/index.php?m=domain_hub';
   }
 
   private getHeaders(apiKey: string, apiSecret: string) {
