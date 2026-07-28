@@ -1,11 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["libsql"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "libsql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
 }
 
 enum Role {
