@@ -48,7 +48,7 @@ export class DnsheService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return accounts.map((account) => this.decryptAccount(account));
+    return accounts.map((account: any) => this.decryptAccount(account));
   }
 
   async findOne(userId: string, id: string) {

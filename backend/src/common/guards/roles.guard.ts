@@ -5,8 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '@prisma/client';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { ROLES_KEY, Role } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()

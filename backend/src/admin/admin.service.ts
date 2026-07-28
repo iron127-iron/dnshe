@@ -320,7 +320,7 @@ export class AdminService {
     } else {
       const users = await this.prisma.user.findMany({ select: { id: true } });
       await this.prisma.notification.createMany({
-        data: users.map((u) => ({
+        data: users.map((u: { id: string }) => ({
           userId: u.id,
           title: data.title,
           message: data.message,
