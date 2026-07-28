@@ -1,0 +1,196 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["libsql"]
+}
+
+datasource db {
+  provider = "libsql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  PREMIUM_USER
+  FREE_USER
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  emailVerified    Boolean  @default(false)
+  emailVerifyToken String?
+  username         String   @unique
+  password         String
+  displayName      String?
+  avatar           String?
+  role             Role     @default(FREE_USER)
+  isActive         Boolean  @default(true)
+  isBlocked        Boolean  @default(false)
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean  @default(false)
+  twoFactorMethod  String?
+  rememberMe       Boolean  @default(false)
+  lastLoginAt      DateTime?
+  lastLoginIp      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+
+  sessions      UserSession[]
+  refreshTokens RefreshToken[]
+  dnsheAccounts DnsheAccount[]
+  domains       Domain[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  apiUsage      ApiUsage[]
+}
+
+model UserSession {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  device    String?
+  location  String?
+  isActive  Boolean  @default(true)
+  lastUsed  DateTime @default(now())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  device    String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Permission {
+  id         String @id @default(uuid())
+  role       Role
+  resource   String
+  action     String
+  conditions String?
+
+  @@unique([role, resource, action])
+}
+
+model DnsheAccount {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  apiKey    String
+  apiSecret String
+  notes     String?
+  tags      String?
+  isActive  Boolean  @default(true)
+  lastSyncAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  domains Domain[]
+
+  @@index([userId])
+}
+
+model Domain {
+  id             String   @id @default(uuid())
+  dnsheAccountId String
+  dnsheAccount   DnsheAccount @relation(fields: [dnsheAccountId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain         String
+  status         String?
+  registeredAt   DateTime?
+  expiresAt      DateTime?
+  autoRenew      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  dnsRecords DnsRecord[]
+  apiUsage   ApiUsage[]
+
+  @@index([dnsheAccountId])
+  @@index([userId])
+  @@index([domain])
+}
+
+model DnsRecord {
+  id        String   @id @default(uuid())
+  domainId  String
+  domain    Domain   @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  recordId  String?
+  type      String
+  name      String
+  value     String
+  ttl       Int      @default(3600)
+  priority  Int?
+  status    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([domainId])
+  @@index([recordId])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action     String
+  resource   String
+  resourceId String?
+  details    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model ApiUsage {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domainId   String?
+  domain     Domain?  @relation(fields: [domainId], references: [id])
+  endpoint   String
+  method     String
+  statusCode Int?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
