@@ -1,11 +1,15 @@
 {
-  "buildCommand": "npx prisma generate && npx tsc",
-  "outputDirectory": "dist",
-  "installCommand": "npm install --include=dev",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "@vercel/node@3",
-      "maxDuration": 60
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.ts"
+    }
+  ]
 }
